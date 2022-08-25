@@ -1,4 +1,4 @@
-#include "TraumaBuildSystem"
+#include "TraumaBuildSystem.hpp"
 
 
 
@@ -24,7 +24,7 @@ int main()
 
     Call("g++" * cppFlags * "-o" + buildDir / "build.exe Sources/TraumaBuildSystem.cpp -lShlwapi");
 
-    auto [tbsFileBuffer, tbsFileBufferSize] = ReadFile("Sources/TraumaBuildSystem");
+    auto [tbsFileBuffer, tbsFileBufferSize] = ReadFile("Sources/TraumaBuildSystem.hpp");
     char* p = tbsFileBuffer;
     char* injectDirective = strstr(p, defineTBSInjectFileStr);
 

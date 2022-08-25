@@ -5,8 +5,10 @@ A simple Build System written in C++, which lets you write C++ build scripts to 
 ---
 
 Current Limitations:
+
 - **Requires** a C++20 compliant compiler. I'll be lowering this requirement in future releases.
-- **Works only on Windows using MinGW.** Full support for Windows and Linux support is planned, and I'll gladly accept Mac support pull requests.
+
+- **Works only on Windows using MinGW.** Full support for Windows and Linux is planned, and I'll gladly accept Mac support pull requests.
 
 ## A Quick Example
 
@@ -63,13 +65,16 @@ BUILD_STEPS()
 ## How To Build
 
 - `OPTIONAL` Inside TraumaBuildSystem.cpp you can customize:
+
     - The Cache directory, by modifying `cacheDir`.
+
     - The Build Script directory, by modifying `buildScriptsDir`
+
     - The Compiler flags when building scripts, by modifying `additionalFlags`.
 
 - Run the Batch Script of your platform of choice, or:
 
-    - build GenerateTBS.cpp like this:
+    - build GenerateTBS.cpp from the command line like this:
 
         #### Windows
 
