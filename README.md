@@ -4,7 +4,9 @@ A simple Build System written in C++, which lets you write C++ build scripts to 
 
 ---
 
-**Right now this builds on Windows only.** Linux and Mac support is coming.
+Current Limitations:
+- **Requires** a C++20 compliant compiler. I'll be lowering this requirement in future releases.
+- **Works only on Windows using MinGW.** Full support for Windows and Linux support is planned, and I'll gladly accept Mac support pull requests.
 
 ## A Quick Example
 
@@ -13,14 +15,17 @@ A simple Build System written in C++, which lets you write C++ build scripts to 
 
 using namespace TraumaBuildSystem::v1::Experimental;
 
+// The String class acts as a wrapper on char[] arrays, which allows for easier strings operations.
+// A StaticString is just a define for a constexpr String, which allows to optimize out most of the String processing operations.
+
 StaticString buildsDir      = "Builds";
-StaticString debugDir       = buildsDir / "Debug";
+StaticString debugDir       = buildsDir / "Debug";      // <- I'm concatenating Builds and Debug with a /, resulting in Builds/Debug!
 StaticString releaseDir     = buildsDir / "Release";
 
 StaticString cppStandard    = "-std=c++20";
 StaticString globalFlags    = "-Wall -Wextra -Wpedantic";
 
-StaticString debugFlags     = cppStandard * globalFlags * AsDefine("DEBUG_BUILD");
+StaticString debugFlags     = cppStandard * globalFlags * AsDefine("DEBUG_BUILD"); // <- the * indicates a concatenation with a white space in-between.
 
 StaticString includes       = AsInclude("Sources");
 
@@ -28,6 +33,8 @@ BUILD_STEPS()
 {
     if (NotExists(debugDir)) CreateDirectory(debugDir);
     if (NotExists(releaseDir)) CreateDirectory(releaseDir);
+
+    ClearConsole();
 
     Build
     (
@@ -84,12 +91,14 @@ BUILD_STEPS()
 
 - Place TraumaBuildSystem inside your scripts directory and include it in your scripts.
 
-- Place build.exe wherever you like and run it, the build process will start: the system will look for all .build files, will attempt to compile them, and will run the successful ones.
+- Place build.exe at the root of your project and run it, the build process will start: the system will look for all .build files in the specified path, will attempt to compile them, and will run the successful ones.
 
-    - `OPTIONAL` Provide the root of your project as a parameter to build.exe, it will be used as the current working directory.
+    - `OPTIONAL` Place build.exe wherever you like and provide the root of your project as a parameter to build.exe, it will be set as the current working directory.
 
-- Check the Examples directory to see how build scripts look like, and remember: a script **is just a regular C++ file**, whatever you can do in your regular day to day programming, you can do it to automate your build process.
+- **TODO** Check the Examples directory to see what Build Scripts can do.
 
-## API and Documentation
+- Remember: a script **is just a regular C++ file**, whatever you can do in your regular day to day programming, you can use it to automate your build process now.
 
-You can find the documentation in the TraumaBuildSystem file itself.
+## API
+
+You can find the API documentation in the TraumaBuildSystem file itself.
