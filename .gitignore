@@ -1,0 +1,7 @@
+/run.bat
+.svn
+/.gcc-flags.json
+Build
+/build.bat
+/clean.bat
+/Sources/Tests.cpp
