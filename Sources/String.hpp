@@ -1,14 +1,20 @@
-#pragma once
+// ======================================================================================================= //
+//      This file is part of Trauma Build System (https://github.com/FoxLeader/TraumaBuildSystem)          //
+//      Copyright: PolyTrauma Studios Srls, All Rights Reserved.                                           //
+//                                                                                                         //
+//      Author: Fabiano Raffaelli                                                                          //
+//                                                                                                         //
+// ======================================================================================================= //
+//      This software is licensed under Creative Commons (CC BY NC 4.0): See LICENSE.md for details.       //
+// ======================================================================================================= //
 
-#include <cstddef>
+#pragma once
 
 #define StaticString constexpr String
 
-
+using size_t = unsigned long long; static_assert(sizeof(size_t) == 8);
 
 inline constexpr size_t InvalidStringIndex = static_cast<size_t>(-1);
-
-
 
 template <size_t MaxSize>
 class String

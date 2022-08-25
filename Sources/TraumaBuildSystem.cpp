@@ -1,19 +1,24 @@
+// ======================================================================================================= //
+//      This file is part of Trauma Build System (https://github.com/FoxLeader/TraumaBuildSystem)          //
+//      Copyright: PolyTrauma Studios Srls, All Rights Reserved.                                           //
+//                                                                                                         //
+//      Author: Fabiano Raffaelli                                                                          //
+//                                                                                                         //
+// ======================================================================================================= //
+//      This software is licensed under Creative Commons (CC BY NC 4.0): See LICENSE.md for details.       //
+// ======================================================================================================= //
+
 #include "TraumaBuildSystem.hpp"
 
 using namespace TraumaBuildSystem::v1::Experimental;
-
-
 
 // Edit  Me --->
 
 StaticString cacheDir               = "Builds/.cache";
 StaticString buildScriptsDir        = "BuildScripts";
-
 StaticString additionalFlags        = "-Wall -Wextra -Wpedantic -Wsign-conversion ";
 
 // <--- Edit Me
-
-
 
 int main(int argc, char** argv)
 {

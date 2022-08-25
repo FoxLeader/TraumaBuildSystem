@@ -1,18 +1,51 @@
+// ======================================================================================================= //
+//      This file is part of Trauma Build System (https://github.com/FoxLeader/TraumaBuildSystem)          //
+//      Copyright: PolyTrauma Studios Srls, All Rights Reserved.                                           //
+//                                                                                                         //
+//      Author: Fabiano Raffaelli                                                                          //
+//                                                                                                         //
+// ======================================================================================================= //
+//      This software is licensed under Creative Commons (CC BY NC 4.0): See LICENSE.md for details.       //
+// ======================================================================================================= //
+
 #pragma once
 
-#include <cstddef>
-
-
+using size_t = unsigned long long; static_assert(sizeof(size_t) == 8);
 
 template <size_t> class String;
-template <typename> class DynamicArray;
-
-
 
 namespace TypeTraits
 {
     namespace Implementation
     {
+        namespace Helpers
+        {
+            // - RemoveConstAndVolatile
+            template <typename T>
+            struct RemoveConstAndVolatile                       { using type = T; };
+            template <typename T>
+            struct RemoveConstAndVolatile<const T>              { using type = T; };
+            template <typename T>
+            struct RemoveConstAndVolatile<volatile T>           { using type = T; };
+            template <typename T>
+            struct RemoveConstAndVolatile<const volatile T>     { using type = T; };
+
+            // - RemovePointer
+            template <typename T, typename>
+            struct RemovePointerHelper                          { using type = T; };
+            template <typename T, typename U>
+            struct RemovePointerHelper<T, U*>                   { using type = U; };
+            template <typename T>
+            struct RemovePointer                                { using type = RemoveConstAndVolatile<T>::type; };
+            template <typename T>
+            struct RemovePointer<T*>                            { using type = RemoveConstAndVolatile<T>::type; };
+        }
+
+        template <typename T>
+        using RemoveConstAndVolatile                            = typename Helpers::RemoveConstAndVolatile<T>::type;
+        template <typename T>
+        using RemovePointer                                     = typename Helpers::RemovePointer<T>::type;
+
         // - IsStringLiteral
         template <typename T>
         struct IsStringLiteral                                  { static constexpr bool Value = false; };
@@ -37,12 +70,23 @@ namespace TypeTraits
         template <size_t StringSize>
         struct IsString<String<StringSize>&>                    { static constexpr bool Value = true; };
 
-        // - IsArray
+        // - IsPointer
         template <typename T>
-        struct IsArray                                          { static constexpr bool Value = false; };
+        struct IsPointer                                        { static constexpr bool Value = false; };
         template <typename T>
-        struct IsArray<const DynamicArray<T>&>                  { static constexpr bool Value = false; };
+        struct IsPointer<T*>                                    { static constexpr bool Value = true; };
+
+        // - IsFunction
+        template <typename T>
+        struct IsFunction                                       { static constexpr bool Value = false; };
+
+        // - IsFunctionPointer
+        template <typename T>
+        struct IsFunctionPointer                                { static constexpr bool Value = false; };
     }
+
+    using Implementation::RemoveConstAndVolatile;
+    using Implementation::RemovePointer;
 
     template <typename T>
     inline constexpr bool IsStringLiteral                       = Implementation::IsStringLiteral<T>::Value;
@@ -51,5 +95,9 @@ namespace TypeTraits
     template <typename T>
     inline constexpr bool IsString                              = Implementation::IsString<T>::Value;
     template <typename T>
-    inline constexpr bool IsArray                               = Implementation::IsArray<T>::Value;
+    inline constexpr bool IsPointer                             = Implementation::IsPointer<T>::Value;
+    template <typename T>
+    inline constexpr bool IsFunction                            = Implementation::IsFunction<T>::Value;
+    template <typename T>
+    inline constexpr bool IsFunctionPointer                     = Implementation::IsFunctionPointer<T>::Value;
 }

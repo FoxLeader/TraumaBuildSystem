@@ -1,3 +1,13 @@
+// ======================================================================================================= //
+//      This file is part of Trauma Build System (https://github.com/FoxLeader/TraumaBuildSystem)          //
+//      Copyright: PolyTrauma Studios Srls, All Rights Reserved.                                           //
+//                                                                                                         //
+//      Author: Fabiano Raffaelli                                                                          //
+//                                                                                                         //
+// ======================================================================================================= //
+//      This software is licensed under Creative Commons (CC BY NC 4.0): See LICENSE.md for details.       //
+// ======================================================================================================= //
+
 #pragma once
 #define TBS_InjectFile
 // TODO: Define based on detected compiler.
@@ -5,12 +15,8 @@
 
 using size_t = unsigned long long; static_assert(sizeof(size_t) == 8);
 
-
-
-/*  Notes on the namespace.
-
-    The current plan is to keep new functionality in the Experimental subspace,
-    pulling them out once their signature will be considered stable, this means that
+/*  The current plan is to keep new functionality in the Experimental subspace,
+    pulling them out once their function signature will be considered stable, this means that
     Build Scripts written against an Experimental API may break frequently.
 
     When writing Build Scripts against a stable API, it is reccomended to use the
@@ -48,7 +54,6 @@ namespace TraumaBuildSystem::v1::Experimental
 
     // File Operations.
     bool                            CopyFile(const auto& fromPath, const auto& toPath); // Copies a single file.
-    auto                            ListFiles(const auto& path);                        // Returns a list of file names in the specified directory.
     void                            ForEachFile(const auto& path, auto&& fn);           // Apply fn to each file in path. Path can contain Wildcards so that files will be filtered accordingly. (Ex: MyPath/*.txt)
     FileData                        ReadFile(const auto& filename);                     // Reads an entire file into a buffer and returns a char* handle and its size in a FileData struct. On Error, the buffer is set to nullptr. IT IS THE USER'S RESPONSIBILITY TO FREE() THE BUFFER HANDLE.
 
@@ -83,8 +88,6 @@ namespace TraumaBuildSystem::v1::Experimental
 
 TBS_InjectFile
 #include "String.hpp"
-TBS_InjectFile
-#include "DynamicArray.hpp"
 
 // ============================================================================
 // ------------------------------ IMPLEMENTATION ------------------------------
@@ -392,27 +395,6 @@ inline bool TraumaBuildSystem::v1::Experimental::SetWorkingDirectory(const auto&
 
 
 
-inline auto TraumaBuildSystem::v1::Experimental::ListFiles(const auto& path)
-{
-    static_assert(TypeTraits::IsStringLiteral<decltype(path)> || TypeTraits::IsString<decltype(path)>);
-
-    DynamicArray<String<4096>> files;
-
-    #ifdef _WIN32
-        auto winPath = Helpers::ConvertToWinPath(path);
-        auto wStr = Helpers::ToWStr(winPath);
-        Windows::WIN32_FIND_DATAW fileData = {};
-        Windows::HANDLE handle = Windows::FindFirstFileW(wStr, &fileData);
-        free(wStr);
-        do { files.push(Helpers::ToCStr(fileData.cFileName)); } while (Windows::FindNextFileW(handle, &fileData));
-        Windows::FindClose(handle);
-    #endif
-
-    return files;
-}
-
-
-
 inline void TraumaBuildSystem::v1::Experimental::ForEachFile(const auto& path, auto&& fn)
 {
     static_assert(TypeTraits::IsStringLiteral<decltype(path)> || TypeTraits::IsString<decltype(path)>);
@@ -632,8 +614,8 @@ inline Platform::VoidFnPtr Platform::GetFunction(DynamicLibrary library, const c
 template <typename FunctionPointer>
 inline FunctionPointer Platform::GetFunction(DynamicLibrary library, const char* const functionName)
 {
-    static_assert(std::is_pointer_v<FunctionPointer>);
-    static_assert(std::is_function_v<std::remove_pointer_t<FunctionPointer>>);
+    static_assert(TypeTraits::IsPointer<FunctionPointer>);
+    // static_assert(TypeTraits::IsFunction<std::remove_pointer_t<FunctionPointer>>); // FIXME
     assert(functionName);
     return reinterpret_cast<FunctionPointer>(GetFunction(library, functionName));
 }
