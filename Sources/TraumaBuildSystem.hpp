@@ -11,9 +11,13 @@
 #pragma once
 #define TBS_InjectFile
 // TODO: Define based on detected compiler.
-#define BUILD_STEPS() extern "C" void BuildSteps()
-
 using size_t = unsigned long long; static_assert(sizeof(size_t) == 8);
+namespace TraumaBuildSystem { template <size_t> class String; }
+
+#define BUILD_STEPS() extern "C" void BuildSteps()
+#define TRAUMA_BUILD_SYSTEM(ver) \
+    using namespace TraumaBuildSystem::ver; \
+    using TraumaBuildSystem::String;
 
 /*  The current plan is to keep new functionality in the Experimental subspace,
     pulling them out once their function signature will be considered stable, this means that
@@ -125,7 +129,7 @@ TBS_InjectFile
 
 
 
-namespace Helpers
+namespace TraumaBuildSystem::Helpers
 {
     template <size_t aSize, size_t bSize>
     constexpr auto StrCat(const char (&a)[aSize], const String<bSize>& b) { return a + b; }
@@ -208,9 +212,9 @@ namespace Helpers
             return wStr;
         }
 
-        inline String<4096> ToCStr(Windows::LPWSTR wStr)
+        inline TraumaBuildSystem::String<4096> ToCStr(Windows::LPWSTR wStr)
         {
-            String<4096> string;
+            TraumaBuildSystem::String<4096> string;
             Windows::WideCharToMultiByte(CP_UTF8, 0, wStr, -1, string.data(), string.max_size(), 0, 0);
             return string;
         }
@@ -219,7 +223,7 @@ namespace Helpers
 
 
 
-namespace Platform
+namespace TraumaBuildSystem::Platform
 {
     using VoidFnPtr = void(*)();
 
@@ -576,7 +580,7 @@ inline auto TraumaBuildSystem::v1::Experimental::SVN::CurrentRevision()
 
 
 
-inline DynamicLibrary Platform::LoadLibrary(const auto& filename)
+inline DynamicLibrary TraumaBuildSystem::Platform::LoadLibrary(const auto& filename)
 {
     static_assert(TypeTraits::IsStringLiteral<decltype(filename)> || TypeTraits::IsString<decltype(filename)>);
 
@@ -591,7 +595,7 @@ inline DynamicLibrary Platform::LoadLibrary(const auto& filename)
 
 
 
-inline void Platform::FreeLibrary(DynamicLibrary library)
+inline void TraumaBuildSystem::Platform::FreeLibrary(DynamicLibrary library)
 {
     #ifdef _WIN32
         Windows::FreeLibrary(library);
@@ -600,7 +604,7 @@ inline void Platform::FreeLibrary(DynamicLibrary library)
 
 
 
-inline Platform::VoidFnPtr Platform::GetFunction(DynamicLibrary library, const char* const functionName)
+inline TraumaBuildSystem::Platform::VoidFnPtr TraumaBuildSystem::Platform::GetFunction(DynamicLibrary library, const char* const functionName)
 {
     assert(functionName);
 
@@ -612,7 +616,7 @@ inline Platform::VoidFnPtr Platform::GetFunction(DynamicLibrary library, const c
 
 
 template <typename FunctionPointer>
-inline FunctionPointer Platform::GetFunction(DynamicLibrary library, const char* const functionName)
+inline FunctionPointer TraumaBuildSystem::Platform::GetFunction(DynamicLibrary library, const char* const functionName)
 {
     static_assert(TypeTraits::IsPointer<FunctionPointer>);
     // static_assert(TypeTraits::IsFunction<std::remove_pointer_t<FunctionPointer>>); // FIXME

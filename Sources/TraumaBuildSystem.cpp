@@ -10,7 +10,7 @@
 
 #include "TraumaBuildSystem.hpp"
 
-using namespace TraumaBuildSystem::v1::Experimental;
+TRAUMA_BUILD_SYSTEM(v1::Experimental)
 
 // Edit  Me --->
 
@@ -39,10 +39,10 @@ int main(int argc, char** argv)
 
     ForEachFile(cacheDir / buildScriptsDir / "*.build", [&] (auto&& script)
     {
-        DynamicLibrary library = Platform::LoadLibrary(cacheDir / buildScriptsDir / script);
+        DynamicLibrary library = TraumaBuildSystem::Platform::LoadLibrary(cacheDir / buildScriptsDir / script);
         Println("=== Build Process Started: %s ===", script.c_str());
-        Platform::GetFunction(library, "BuildSteps")();
-        Platform::FreeLibrary(library);
+        TraumaBuildSystem::Platform::GetFunction(library, "BuildSteps")();
+        TraumaBuildSystem::Platform::FreeLibrary(library);
         Println("=== Build Process Terminated: %s ===\n", script.c_str());
     });
 }
