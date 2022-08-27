@@ -57,9 +57,11 @@ namespace TraumaBuildSystem::v1::Experimental
     bool                            SetWorkingDirectory(const auto& path);              // Sets the Current Working Directory to the new Path. Returns true on success.
 
     // File Operations.
-    bool                            CopyFile(const auto& fromPath, const auto& toPath); // Copies a single file.
-    void                            ForEachFile(const auto& path, auto&& fn);           // Apply fn to each file in path. Path can contain Wildcards so that files will be filtered accordingly. (Ex: MyPath/*.txt)
+    bool                            DeleteFile(const auto& filename);                   // Deletes a single file. Returns True on success.
+    bool                            CopyFile(const auto& fromPath, const auto& toPath); // Copies a single file. Returns True on success.
+    void                            ForEachFile(const auto& path, auto&& fn);           // Executes function fn for each file in path. Path can contain Wildcards so that files will be filtered accordingly. (Ex: MyPath/*.txt)
     FileData                        ReadFile(const auto& filename);                     // Reads an entire file into a buffer and returns a char* handle and its size in a FileData struct. On Error, the buffer is set to nullptr. IT IS THE USER'S RESPONSIBILITY TO FREE() THE BUFFER HANDLE.
+
 
     // Launch External Programs. THIS CURRENLY USES system() WHICH IS NOTORIOUSLY UNSAFE.
     void                            Call(const auto& cmd);                              // Executes cmd.
@@ -417,6 +419,23 @@ inline void TraumaBuildSystem::v1::Experimental::ForEachFile(const auto& path, a
 
 
 
+inline bool TraumaBuildSystem::v1::Experimental::DeleteFile(const auto& filename)
+{
+    static_assert(TypeTraits::IsStringLiteral<decltype(filename)> || TypeTraits::IsString<decltype(filename)>);
+
+    if (!IsValidPath(filename) || NotExists(filename)) return false;
+
+    #ifdef _WIN32
+        auto winFilename = Helpers::ConvertToWinPath(filename);
+        auto wStr = Helpers::ToWStr(winFilename);
+        bool success = Windows::DeleteFileW(wStr);
+        free(wStr);
+        return success;
+    #endif
+}
+
+
+
 inline bool TraumaBuildSystem::v1::Experimental::CopyFile(const auto& fromPath, const auto& toPath)
 {
     static_assert(TypeTraits::IsStringLiteral<decltype(fromPath)> || TypeTraits::IsString<decltype(fromPath)>);
@@ -436,7 +455,6 @@ inline bool TraumaBuildSystem::v1::Experimental::CopyFile(const auto& fromPath, 
         bool success = Windows::CopyFileW(wStrFrom, wStrTo, FALSE);
         free(wStrFrom);
         free(wStrTo);
-
         return success;
     #endif
 }
