@@ -10,10 +10,10 @@
 
 #include "TraumaBuildSystem.hpp"
 
+TRAUMA_BUILD_SYSTEM(v1::Experimental)
+
 int main()
 {
-    using namespace TraumaBuildSystem::v1::Experimental;
-
     StaticString buildDir               = "Build";
     StaticString sourcesDir             = "Sources";
 
@@ -56,12 +56,14 @@ int main()
             fileToInject.append(filenameBegin + 1, static_cast<size_t>(filenameEnd - filenameBegin - 1));
 
             auto [buffer, bufferSize] = ReadFile(fileToInject);
-            char* pBuffer = buffer;
-            if (strstr(buffer, pragmaOnceDirective))
+            char* pBuffer = strstr(buffer, pragmaOnceDirective);
+            if (pBuffer)
             {
                 pBuffer += pragmaOnceDirective.max_size();
-                bufferSize -= pragmaOnceDirective.max_size();
+                bufferSize -= static_cast<size_t>(pBuffer - buffer);
             }
+            else
+                pBuffer = buffer;
 
             fwrite(pBuffer, 1, bufferSize , outFile);
             free(buffer);

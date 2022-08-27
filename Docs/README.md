@@ -15,7 +15,7 @@ Current Limitations:
 ```cpp
 #include "TraumaBuildSystem"
 
-using namespace TraumaBuildSystem::v1::Experimental;
+TRAUMA_BUILD_SYSTEM(v1::Experimental)
 
 // The String class acts as a wrapper on char[] arrays, which allows for easier strings operations.
 // A StaticString is just a define for a constexpr String, which allows to optimize out most of the String processing operations.
