@@ -29,13 +29,13 @@ int main(int argc, char** argv)
     CreateDirectory(cacheDir / buildScriptsDir);
 
     ClearConsole();
-    Println("=== Building Scripts ===");
+    Println("=== Checking Scripts ===");
     ForEachFile(buildScriptsDir / "*.build", [&] (auto&& script)
     {
-        Println("Compiling %s...", script.c_str());
+        Println("%s", script.c_str());
         Call("g++ -s -std=c++20 -x c++ -shared" * additionalFlags * "-fdiagnostics-color=always -fno-rtti -fno-exceptions -o" * cacheDir / buildScriptsDir / script * buildScriptsDir / script * "-lShlwapi");
     });
-    Println("=== Terminated ===\n");
+    Println("=== Checks Terminated ===\n");
 
     ForEachFile(cacheDir / buildScriptsDir / "*.build", [&] (auto&& script)
     {

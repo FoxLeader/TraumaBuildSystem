@@ -41,8 +41,8 @@ namespace TraumaBuildSystem::v1::Experimental
 
     // Path Manipulation.
     constexpr auto                  StripExtension(const auto& path);                   // Returns path with the extension elided. The returned value matches path if path has no extension suffix.
-    constexpr auto                  StripPath(const auto& path);                        // Returns the filename only. If the
-    constexpr auto                  StripFileName(const auto& path);
+    constexpr auto                  StripPath(const auto& path);                        // Returns the file name only. Returns an empty String if path is not valid or if ending with '/'.
+    constexpr auto                  StripFileName(const auto& path);                    // Returns the directory path only. Returns an empty is path is not valid or if there are no directories before the file name.
 
     // Path Validation.
     bool                            Exists(const auto& path);                           // Returns true if Path exists.
@@ -59,9 +59,8 @@ namespace TraumaBuildSystem::v1::Experimental
     // File Operations.
     bool                            DeleteFile(const auto& filename);                   // Deletes a single file. Returns True on success.
     bool                            CopyFile(const auto& fromPath, const auto& toPath); // Copies a single file. Returns True on success.
-    void                            ForEachFile(const auto& path, auto&& fn);           // Executes function fn for each file in path. Path can contain Wildcards so that files will be filtered accordingly. (Ex: MyPath/*.txt)
+    void                            ForEachFile(const auto& path, auto&& fn);           // Executes function fn for each file in path. Path can contain Wildcards files will be filtered accordingly. (Ex: MyPath/*.txt)
     FileData                        ReadFile(const auto& filename);                     // Reads an entire file into a buffer and returns a char* handle and its size in a FileData struct. On Error, the buffer is set to nullptr. IT IS THE USER'S RESPONSIBILITY TO FREE() THE BUFFER HANDLE.
-
 
     // Launch External Programs. THIS CURRENLY USES system() WHICH IS NOTORIOUSLY UNSAFE.
     void                            Call(const auto& cmd);                              // Executes cmd.
@@ -250,6 +249,9 @@ constexpr auto TraumaBuildSystem::v1::Experimental::AsDefine(const auto& name)  
 
 inline constexpr auto TraumaBuildSystem::v1::Experimental::StripExtension(const auto& path)
 {
+    if (!IsValidPath(path))
+        return String<path.max_size()>();
+
     String<path.max_size()> ret;
     size_t index = Helpers::FindLastOfChars(path, ".");
 
@@ -264,6 +266,9 @@ inline constexpr auto TraumaBuildSystem::v1::Experimental::StripExtension(const 
 
 inline constexpr auto TraumaBuildSystem::v1::Experimental::StripFileName(const auto& path)
 {
+    if (!IsValidPath(path))
+        return String<path.max_size()>();
+
     String<path.max_size()> ret;
     size_t index = Helpers::FindLastOfChars(path, "\\/");
 
@@ -278,6 +283,9 @@ inline constexpr auto TraumaBuildSystem::v1::Experimental::StripFileName(const a
 
 inline constexpr auto TraumaBuildSystem::v1::Experimental::StripPath(const auto& path)
 {
+    if (!IsValidPath(path))
+        return String<path.max_size()>();
+
     String<path.max_size()> ret;
     size_t index = Helpers::FindLastOfChars(path, "\\/");
 
