@@ -147,28 +147,11 @@ namespace TraumaBuildSystem::Helpers
         return string;
     }
 
-    inline constexpr size_t FindLastOfCharsLiteral(const char* const string, const char* const set)
-    {
-        const char* p = set;
-        while (*p != '\0')
-        {
-            char* found = strrchr(string, *p);
-            if (found)
-                return static_cast<size_t>(found - string);
-            p++;
-        }
-        return InvalidStringIndex;
-    }
-
     inline constexpr const char* ToCStr(const auto& string)                                     { return string.c_str(); }
     inline constexpr const char* ToCStr(const char* const string)                               { return string; }
     inline constexpr const char* ToCStr(char* const string)                                     { return string; }
 
-    inline constexpr size_t FindLastOfChars(const auto& string, const char* const set)          { return string.find_last_of_chars(set); }
-    inline constexpr size_t FindLastOfChars(char* const string, const char* const set)          { return FindLastOfCharsLiteral(string, set); }
-    inline constexpr size_t FindLastOfChars(const char* const string, const char* const set)    { return FindLastOfCharsLiteral(string, set); }
-
-    inline constexpr size_t StrLen(const auto& string)                                          { return string.length(); }
+    inline constexpr size_t StrLen(const auto& string)                                          { return Length(string); }
     inline constexpr size_t StrLen(const char* const string)                                    { return strlen(string); }
     inline constexpr size_t StrLen(char* const string)                                          { return strlen(string); }
     template <size_t Size>
@@ -182,7 +165,7 @@ namespace TraumaBuildSystem::Helpers
             if constexpr (TypeTraits::IsString<decltype(path)>)
             {
                 String newPath = path;
-                for (size_t i = 0; i < newPath.max_size(); i++)
+                for (size_t i = 0; i < SizeOf(newPath); i++)
                     if (newPath[i] == '/')
                         newPath[i] = '\\';
 
@@ -195,7 +178,7 @@ namespace TraumaBuildSystem::Helpers
 
                 String<4096> newPath;
                 strncpy(newPath.data(), pPath, pathLength);
-                size_t newPathLength = newPath.length();
+                size_t newPathLength = Length(newPath);
                 for (size_t i = 0; i < newPathLength; i++)
                     if (newPath[i] == '/')
                         newPath[i] = '\\';
@@ -213,10 +196,10 @@ namespace TraumaBuildSystem::Helpers
             return wStr;
         }
 
-        inline TraumaBuildSystem::String<4096> ToCStr(Windows::LPWSTR wStr)
+        inline String<4096> ToCStr(Windows::LPWSTR wStr)
         {
-            TraumaBuildSystem::String<4096> string;
-            Windows::WideCharToMultiByte(CP_UTF8, 0, wStr, -1, string.data(), string.max_size(), 0, 0);
+            String<4096> string;
+            Windows::WideCharToMultiByte(CP_UTF8, 0, wStr, -1, string.data(), SizeOf(string), 0, 0);
             return string;
         }
     #endif
@@ -253,7 +236,7 @@ inline constexpr auto TraumaBuildSystem::v1::Experimental::StripExtension(const 
         return String<path.max_size()>();
 
     String<path.max_size()> ret;
-    size_t index = Helpers::FindLastOfChars(path, ".");
+    size_t index = FindLastOfChars(path, ".");
 
     if (index != InvalidStringIndex)
         index--;
@@ -270,7 +253,7 @@ inline constexpr auto TraumaBuildSystem::v1::Experimental::StripFileName(const a
         return String<path.max_size()>();
 
     String<path.max_size()> ret;
-    size_t index = Helpers::FindLastOfChars(path, "\\/");
+    size_t index = FindLastOfChars(path, "\\/");
 
     if (index != InvalidStringIndex)
         index--;
@@ -287,7 +270,7 @@ inline constexpr auto TraumaBuildSystem::v1::Experimental::StripPath(const auto&
         return String<path.max_size()>();
 
     String<path.max_size()> ret;
-    size_t index = Helpers::FindLastOfChars(path, "\\/");
+    size_t index = FindLastOfChars(path, "\\/");
 
     if (index == InvalidStringIndex)
         index = 0;
@@ -336,7 +319,7 @@ inline bool TraumaBuildSystem::v1::Experimental::CreateDirectory(const auto& pat
     #ifdef _WIN32
         auto RecursiveDirectoryCreation = [] (auto winPath, auto RecursiveDirectoryCreation) -> bool
         {
-            if (size_t index = Helpers::FindLastOfChars(winPath, "\\");
+            if (size_t index = FindLastOfSet(winPath, "\\");
                 index != InvalidStringIndex)
             {
                 index++;
@@ -601,6 +584,12 @@ inline auto TraumaBuildSystem::v1::Experimental::SVN::CurrentRevision()
     // TODO: This currently returns the HEAD revision, not the the Working Copy's.
     String<16> rev;
     TraumaBuildSystem::v1::Experimental::Call("svn info -rHEAD --show-item revision", rev);
+
+    // Apparently SVN is reporting the revision number with a newline, so we need to get rid of it.
+    for (unsigned i = 0; i < SizeOf(rev); i++)
+        if (rev[i] == '\n')
+            rev[i] = '\0';
+
     return rev;
 }
 

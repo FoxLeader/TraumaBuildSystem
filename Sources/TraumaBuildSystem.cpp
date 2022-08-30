@@ -25,7 +25,8 @@ int main(int argc, char** argv)
     if (argc == 2 && IsValidPath(argv[1]))
         SetWorkingDirectory(argv[1]);
 
-    if (Exists(cacheDir)) DeleteDirectory(cacheDir);
+    if (Exists(cacheDir))
+        DeleteDirectory(cacheDir);
     CreateDirectory(cacheDir / buildScriptsDir);
 
     ClearConsole();

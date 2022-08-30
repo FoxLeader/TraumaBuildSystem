@@ -18,6 +18,10 @@ namespace TraumaBuildSystem
 {
     inline constexpr size_t InvalidStringIndex = static_cast<size_t>(-1);
 
+    constexpr size_t FindFirstOfSet(const char* const string, const char* const set);
+    constexpr size_t FindLastOfSet(const char* const string, const char* const set);
+    constexpr size_t Length(const char* const string);
+
     template <size_t MaxSize>
     class String
     {
@@ -42,52 +46,20 @@ namespace TraumaBuildSystem
         constexpr const char&           operator[](size_t index) const { return mString[index]; }
 
         constexpr operator              const char*() const { return mString; }
+        constexpr operator              char*() { return mString; }
 
         // ============================================================ Functions
 
         public:
 
         template <size_t StringSize>
-        constexpr void                  append(const String<StringSize>& string, size_t stringLength = InvalidStringIndex, size_t stringOffset = 0) { copy(string.c_str(), length(), stringLength, stringOffset); }
-        constexpr void                  append(const char* string, size_t stringLength = InvalidStringIndex, size_t stringOffset = 0) { copy(string, length(), stringLength, stringOffset); }
+        constexpr void                  append(const String<StringSize>& string, size_t stringLength = InvalidStringIndex, size_t stringOffset = 0) { copy(string.c_str(), Length(mString), stringLength, stringOffset); }
+        constexpr void                  append(const char* string, size_t stringLength = InvalidStringIndex, size_t stringOffset = 0) { copy(string, Length(mString), stringLength, stringOffset); }
 
         constexpr char*                 data() { return mString; }
         constexpr const char*           c_str() const { return mString; }
-        constexpr size_t                max_size() const { return MaxSize; }
+
         constexpr bool                  is_empty() const { return mString[0] == '\0'; }
-
-        constexpr size_t                find_first_of_chars(const auto& string) const
-        {
-            size_t stringLength = Length(string);
-            size_t index = InvalidStringIndex;
-            const char* p = string;
-
-            for (size_t i = 0; i < MaxSize && mString[i] != '\0' && index == InvalidStringIndex; i++)
-                for (size_t k = 0; k < stringLength; k++)
-                    if (mString[i] == p[k])
-                    {
-                        index = i;
-                        break;
-                    }
-
-            return index;
-        }
-
-        constexpr size_t                find_last_of_chars(const auto& string) const
-        {
-            size_t stringLength = Length(string);
-            size_t myLength = length();
-            const char* p = string;
-            size_t index = InvalidStringIndex;
-            for (size_t i = myLength - 1; i > 0 && index == InvalidStringIndex; i--)
-                for (size_t k = 0; k < stringLength; k++)
-                    if (mString[i] == p[k])
-                    {
-                        index = i;
-                        break;
-                    }
-            return index;
-        }
 
         constexpr void                  copy(const char* const string, size_t offset = 0, size_t stringLength = InvalidStringIndex, size_t stringOffset = 0)
         {
@@ -101,18 +73,6 @@ namespace TraumaBuildSystem
                 c++;
             }
             mString[c + offset] = '\0';
-        }
-
-        constexpr size_t                length() const { return Length(mString); }
-
-        private:
-
-        static constexpr size_t         Length(const char* const string)
-        {
-            const char* p = string;
-            size_t c = 0;
-            while (p[c] != '\0') c++;
-            return c;
         }
 
         // ============================================================ Data
@@ -197,5 +157,78 @@ namespace TraumaBuildSystem
         newString.append("/");
         newString.append(b);
         return newString;
+    }
+
+    template <size_t aSize, size_t bSize>
+    constexpr auto operator /(const char (&a)[aSize], const String<bSize>& b)
+    {
+        String<aSize + bSize> newString;
+        newString.append(a);
+        newString.append("/");
+        newString.append(b);
+        return newString;
+    }
+
+
+
+    // inline constexpr size_t FindFirstOfSet(const char* const string, const char* const set)
+    // {
+    //     size_t stringLength = Length(string);
+    //     size_t index = InvalidStringIndex;
+    //     const char* p = string;
+    //
+    //     for (size_t i = 0; i < MaxSize && mString[i] != '\0' && index == InvalidStringIndex; i++)
+    //         for (size_t k = 0; k < stringLength; k++)
+    //             if (mString[i] == p[k])
+    //             {
+    //                 index = i;
+    //                 break;
+    //             }
+    //
+    //     return index;
+    // }
+
+
+
+    inline constexpr size_t FindLastOfSet(const char* const string, const char* const set)
+    {
+        const char* pStr = string + Length(string);
+        const char* pSet = set;
+        size_t index = InvalidStringIndex;
+
+        while (string <= pStr && index == InvalidStringIndex)
+        {
+            while (*pSet != '\0')
+            {
+                if (*pStr == *pSet)
+                {
+                    index = static_cast<size_t>(pStr - string);
+                    break;
+                }
+                pSet++;
+            }
+            pSet = set;
+            pStr--;
+        }
+
+        return index;
+    }
+
+
+
+    template <size_t Size>
+    consteval size_t SizeOf(const String<Size>&) { return Size; }
+
+    template <size_t Size>
+    consteval size_t SizeOf(const char (&)[Size]) { return Size; }
+
+
+
+    inline constexpr size_t Length(const char* const string)
+    {
+        size_t c = 0;
+        while (string[c] != '\0')
+            c++;
+        return c;
     }
 }

@@ -41,7 +41,7 @@ int main()
     {
         auto partSize = static_cast<size_t>(injectDirective - tbsFileBuffer);
         fwrite(tbsFileBuffer, 1, partSize, outFile);
-        p = injectDirective + defineTBSInjectFileStr.max_size();
+        p = injectDirective + SizeOf(defineTBSInjectFileStr);
         char* pNext = strstr(p, TBSInjectFile);
         while (pNext)
         {
@@ -59,7 +59,7 @@ int main()
             char* pBuffer = strstr(buffer, pragmaOnceDirective);
             if (pBuffer)
             {
-                pBuffer += pragmaOnceDirective.max_size();
+                pBuffer += SizeOf(pragmaOnceDirective);
                 bufferSize -= static_cast<size_t>(pBuffer - buffer);
             }
             else
