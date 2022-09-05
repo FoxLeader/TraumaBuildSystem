@@ -14,6 +14,8 @@
 
 using size_t = unsigned long long; static_assert(sizeof(size_t) == 8);
 
+
+
 namespace TraumaBuildSystem
 {
     inline constexpr size_t InvalidStringIndex = static_cast<size_t>(-1);
@@ -216,11 +218,8 @@ namespace TraumaBuildSystem
 
 
 
-    template <size_t Size>
-    consteval size_t SizeOf(const String<Size>&) { return Size; }
-
-    template <size_t Size>
-    consteval size_t SizeOf(const char (&)[Size]) { return Size; }
+    template <size_t Size> consteval size_t SizeOf(const String<Size>&)     { return Size; }
+    template <size_t Size> consteval size_t SizeOf(const char (&)[Size])    { return Size; }
 
 
 

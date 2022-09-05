@@ -19,6 +19,8 @@ namespace TraumaBuildSystem { template <size_t> class String; }
     using namespace TraumaBuildSystem::ver; \
     using TraumaBuildSystem::String;
 
+
+
 /*  The current plan is to keep new functionality in the Experimental subspace,
     pulling them out once their function signature will be considered stable, this means that
     Build Scripts written against an Experimental API may break frequently.
@@ -33,53 +35,59 @@ namespace TraumaBuildSystem::v1::Experimental
 
     // As* functions will prefix "string" so that the compiler will threat "string" as an option.
     // All functions return a String.
-    constexpr auto                  AsInclude(const auto& path);                        // Use this path when resolving includes.
-    constexpr auto                  AsSystemInclude(const auto& path);                  // Use this path when resolving includes, but threat them like system headers. (Suppresses Warnings)
-    constexpr auto                  AsLibrary(const auto& library);                     // Use this library during Linking.
-    constexpr auto                  AsLibraryPath(const auto& path);                    // Use this path when resolving libraries.
-    constexpr auto                  AsDefine(const auto& name);                         // Define a macro, same as #define name in a source file.
+    constexpr auto                  AsInclude(const auto& path);                                        // Use this path when resolving includes.
+    constexpr auto                  AsSystemInclude(const auto& path);                                  // Use this path when resolving includes, but threat them like system headers. (Suppresses Warnings)
+    constexpr auto                  AsLibrary(const auto& library);                                     // Use this library during Linking.
+    constexpr auto                  AsLibraryPath(const auto& path);                                    // Use this path when resolving libraries.
+    constexpr auto                  AsDefine(const auto& name);                                         // Define a macro, same as #define name in a source file.
 
     // Path Manipulation.
-    constexpr auto                  StripExtension(const auto& path);                   // Returns path with the extension elided. The returned value matches path if path has no extension suffix.
-    constexpr auto                  StripPath(const auto& path);                        // Returns the file name only. Returns an empty String if path is not valid or if ending with '/'.
-    constexpr auto                  StripFileName(const auto& path);                    // Returns the directory path only. Returns an empty is path is not valid or if there are no directories before the file name.
+    constexpr auto                  StripExtension(const auto& path);                                   // Returns path with the extension elided. The returned value matches path if path has no extension suffix.
+    constexpr auto                  StripPath(const auto& path);                                        // Returns the file name only. Returns an empty String if path is not valid or if ending with '/'.
+    constexpr auto                  StripFileName(const auto& path);                                    // Returns the directory path only. Returns an empty is path is not valid or if there are no directories before the file name.
 
     // Path Validation.
-    bool                            Exists(const auto& path);                           // Returns true if Path exists.
-    bool                            NotExists(const auto& path);                        // Return true if Path does NOT exist.
-    bool                            IsValidPath(const auto& path);                      // TODO: Currently always returns true.
+    bool                            Exists(const auto& path);                                           // Returns true if Path exists.
+    bool                            NotExists(const auto& path);                                        // Return true if Path does NOT exist.
+    bool                            IsValidPath(const auto& path);                                      // TODO: Currently always returns true.
 
     // Directory Operations.
-    bool                            CreateDirectory(const auto& path);                  // Creates a directory, including the intermediates if needed. Returns true on success.
-    bool                            DeleteDirectory(const auto& path);                  // Deletes a directory and all its content recursively. Returns true on success.
+    bool                            CreateDirectory(const auto& path);                                  // Creates a directory, including the intermediates if needed. Returns true on success.
+    bool                            DeleteDirectory(const auto& path);                                  // Deletes a directory and all its content recursively. Returns true on success.
 
-    auto                            GetWorkingDirectory();                              // Returns a String of the Current Working Directory.
-    bool                            SetWorkingDirectory(const auto& path);              // Sets the Current Working Directory to the new Path. Returns true on success.
+    auto                            GetWorkingDirectory();                                              // Returns a String of the Current Working Directory.
+    bool                            SetWorkingDirectory(const auto& path);                              // Sets the Current Working Directory to the new Path. Returns true on success.
 
     // File Operations.
-    bool                            DeleteFile(const auto& filename);                   // Deletes a single file. Returns True on success.
-    bool                            CopyFile(const auto& fromPath, const auto& toPath); // Copies a single file. Returns True on success.
-    void                            ForEachFile(const auto& path, auto&& fn);           // Executes function fn for each file in path. Path can contain Wildcards files will be filtered accordingly. (Ex: MyPath/*.txt)
-    FileData                        ReadFile(const auto& filename);                     // Reads an entire file into a buffer and returns a char* handle and its size in a FileData struct. On Error, the buffer is set to nullptr. IT IS THE USER'S RESPONSIBILITY TO FREE() THE BUFFER HANDLE.
+    bool                            DeleteFile(const auto& filename);                                   // Deletes a single file. Returns True on success.
+    bool                            CopyFile(const auto& fromPath, const auto& toPath);                 // Copies a single file. Returns True on success.
+    void                            ForEachFile(const auto& path, auto&& fn);                           // Executes function fn for each file in path. Path can contain Wildcards files will be filtered accordingly. (Ex: MyPath/*.txt)
+    FileData                        ReadFile(const auto& filename);                                     // Reads an entire file into a buffer and returns a char* handle and its size in a FileData struct. On Error, the buffer is set to nullptr. IT IS THE USER'S RESPONSIBILITY TO FREE() THE BUFFER HANDLE.
 
     // Launch External Programs. THIS CURRENLY USES system() WHICH IS NOTORIOUSLY UNSAFE.
-    void                            Call(const auto& cmd);                              // Executes cmd.
-    void                            Call(const auto& cmd, auto& output);                // Executes cmd and captures the output.
+    void                            Call(const auto& cmd);                                              // Executes cmd.
+    void                            Call(const auto& cmd, auto& output);                                // Executes cmd and captures the output.
 
     // Console Functionality.
-    void                            ClearConsole();                                     // This is basicaly a shortcut for Call("cls");
-    void                            Print(const auto& message, ...);                    // Works like printf().
-    void                            Println(const auto& message, ...);                  // Works like printf(), but appends a newline.
-    void                            Println();                                          // Prints a newline. (AKA printf("\n"))
+    void                            ClearConsole();                                                     // This is basicaly a shortcut for Call("cls");
+    void                            Print(const auto& message, ...);                                    // Works like printf().
+    void                            Println(const auto& message, ...);                                  // Works like printf(), but appends a newline.
+    void                            Println();                                                          // Prints a newline. (AKA printf("\n"))
 
     // Automations for Call(), not very useful for now.
     auto                            Compile(const auto &sourceFile, const auto& compilerFlags, const auto& includes);
     bool                            Build(const auto& artifact, const auto& source, const auto& compilerFlags, const auto& linkerFlags, const auto& includes, const auto& libsPath, const auto& libs);
 
-    // SVN Utility Functions.
+    // SVN Extension.
     namespace SVN
     {
-        auto                            CurrentRevision();                              // If you're running from a SVN repository, returns a String with the Working Copy's Revision Number.
+        auto                        CurrentRevision(const auto& path = GetWorkingDirectory());          // Returns a String with the Working Copy's Revision Number of Path.
+    }
+
+    // Itch.io Extension.
+    namespace Itch
+    {
+        // TODO: Butler Stuff.
     }
 
     // ============================================================ Types
@@ -579,11 +587,17 @@ inline void TraumaBuildSystem::v1::Experimental::Println()
 
 
 
-inline auto TraumaBuildSystem::v1::Experimental::SVN::CurrentRevision()
+inline auto TraumaBuildSystem::v1::Experimental::SVN::CurrentRevision(const auto& path)
 {
-    // TODO: This currently returns the HEAD revision, not the the Working Copy's.
+    // FIXME: This currently returns the HEAD revision, not the the Working Copy's.
+    if (!IsValidPath(path))
+        return "Invalid Path";
+
     String<16> rev;
+    auto cwd = GetWorkingDirectory();
+    SetWorkingDirectory(path);
     TraumaBuildSystem::v1::Experimental::Call("svn info -rHEAD --show-item revision", rev);
+    SetWorkingDirectory(cwd);
 
     // Apparently SVN is reporting the revision number with a newline, so we need to get rid of it.
     for (unsigned i = 0; i < SizeOf(rev); i++)
