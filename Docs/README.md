@@ -104,5 +104,5 @@ TODO
 
 ## Examples and API
 
-Check the "Examples" directory for hints on how you can write your own .build scripts.  
+`TODO` Check the "Examples" directory for hints on how you can write your own .build scripts.  
 The API documentation is in the generated TraumaBuildSystem file itself.
