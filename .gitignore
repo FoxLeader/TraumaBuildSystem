@@ -5,3 +5,4 @@ Build
 /build.bat
 /clean.bat
 /Sources/Tests.cpp
+/Build-Tests.bat

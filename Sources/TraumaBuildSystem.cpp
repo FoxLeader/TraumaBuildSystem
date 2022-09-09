@@ -14,7 +14,7 @@ TRAUMA_BUILD_SYSTEM(v1::Experimental)
 
 // Edit  Me --->
 
-StaticString cacheDir               = "Builds/.cache";
+StaticString cacheDir               = "../Builds/.cache";
 StaticString buildScriptsDir        = "BuildScripts";
 StaticString additionalFlags        = "-Wall -Wextra -Wpedantic -Wsign-conversion ";
 
@@ -23,7 +23,7 @@ StaticString additionalFlags        = "-Wall -Wextra -Wpedantic -Wsign-conversio
 int main(int argc, char** argv)
 {
     if (argc == 2 && IsValidPath(argv[1]))
-        SetWorkingDirectory(argv[1]);
+        CurrentWorkingDirectory(argv[1]);
 
     if (Exists(cacheDir))
         DeleteDirectory(cacheDir);
@@ -33,7 +33,7 @@ int main(int argc, char** argv)
     Println("=== Checking Scripts ===");
     ForEachFile(buildScriptsDir / "*.build", [&] (auto&& script)
     {
-        Println("%s", script.c_str());
+        Println("%s...", script.c_str());
         Call("g++ -s -std=c++20 -x c++ -shared" * additionalFlags * "-fdiagnostics-color=always -fno-rtti -fno-exceptions -o" * cacheDir / buildScriptsDir / script * buildScriptsDir / script * "-lShlwapi");
     });
     Println("=== Checks Terminated ===\n");

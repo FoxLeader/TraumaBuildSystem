@@ -53,7 +53,7 @@ int main()
 
             String<4096> fileToInject = sourcesDir;
             fileToInject.append("/");
-            fileToInject.append(filenameBegin + 1, static_cast<size_t>(filenameEnd - filenameBegin - 1));
+            fileToInject.append(filenameBegin + 1, 0, static_cast<size_t>(filenameEnd - filenameBegin - 1));
 
             auto [buffer, bufferSize] = ReadFile(fileToInject);
             char* pBuffer = strstr(buffer, pragmaOnceDirective);

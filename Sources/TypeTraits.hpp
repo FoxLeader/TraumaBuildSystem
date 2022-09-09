@@ -37,12 +37,22 @@ namespace TraumaBuildSystem
                 struct RemovePointer                                { using type = T; };
                 template <typename T>
                 struct RemovePointer<T*>                            { using type = T; };
+
+                // - RemoveReference
+                template <typename T>
+                struct RemoveReference                              { using type = T; };
+                template <typename T>
+                struct RemoveReference<T&>                          { using type = T; };
+                template <typename T>
+                struct RemoveReference<const T&>                    { using type = const T; };
             }
 
             template <typename T>
             using RemoveConstAndVolatile                            = typename Helpers::RemoveConstAndVolatile<T>::type;
             template <typename T>
             using RemovePointer                                     = typename Helpers::RemovePointer<T>::type;
+            template <typename T>
+            using RemoveReference                                   = typename Helpers::RemoveReference<T>::type;
 
             // ============================================================ Traits
 
@@ -55,6 +65,8 @@ namespace TraumaBuildSystem
             struct IsStringLiteral<const char* const>               { static constexpr bool Value = true; };
             template <>
             struct IsStringLiteral<char* const&>                    { static constexpr bool Value = true; };
+            template <>
+            struct IsStringLiteral<const char* const&>              { static constexpr bool Value = true; };
 
             // - IsSizedStringLiteral
             template <typename T>

@@ -20,13 +20,15 @@ namespace TraumaBuildSystem
 {
     inline constexpr size_t InvalidStringIndex = static_cast<size_t>(-1);
 
-    constexpr size_t FindFirstOfSet(const char* const string, const char* const set);
-    constexpr size_t FindLastOfSet(const char* const string, const char* const set);
+    constexpr size_t FindFirstOf(const char* const string, const char* const set);
+    constexpr size_t FindLastOf(const char* const string, const char* const set, size_t stringLength = InvalidStringIndex);
     constexpr size_t Length(const char* const string);
 
     template <size_t MaxSize>
     class String
     {
+        static_assert(MaxSize > 0);
+
         // ============================================================ Constructors / Destructors / Operators
 
         public:
@@ -55,8 +57,8 @@ namespace TraumaBuildSystem
         public:
 
         template <size_t StringSize>
-        constexpr void                  append(const String<StringSize>& string, size_t stringLength = InvalidStringIndex, size_t stringOffset = 0) { copy(string.c_str(), Length(mString), stringLength, stringOffset); }
-        constexpr void                  append(const char* string, size_t stringLength = InvalidStringIndex, size_t stringOffset = 0) { copy(string, Length(mString), stringLength, stringOffset); }
+        constexpr void                  append(const String<StringSize>& string, size_t stringOffset = 0, size_t stringLength = InvalidStringIndex) { copy(string.c_str(), Length(mString), stringLength, stringOffset); }
+        constexpr void                  append(const char* string, size_t stringOffset = 0, size_t stringLength = InvalidStringIndex) { copy(string, Length(mString), stringLength, stringOffset); }
 
         constexpr char*                 data() { return mString; }
         constexpr const char*           c_str() const { return mString; }
@@ -85,7 +87,7 @@ namespace TraumaBuildSystem
     };
 
     template <size_t aSize, size_t bSize>
-    constexpr auto operator +(const String<aSize>& a, const String<bSize>& b)
+    inline constexpr auto operator +(const String<aSize>& a, const String<bSize>& b)
     {
         String<aSize + bSize - 1> newString;
         newString.append(a);
@@ -94,7 +96,7 @@ namespace TraumaBuildSystem
     }
 
     template <size_t aSize, size_t bSize>
-    constexpr auto operator +(const String<aSize>& a, const char (&b)[bSize])
+    inline constexpr auto operator +(const String<aSize>& a, const char (&b)[bSize])
     {
         String<aSize + bSize - 1> newString;
         newString.append(a);
@@ -103,7 +105,7 @@ namespace TraumaBuildSystem
     }
 
     template <size_t aSize, size_t bSize>
-    constexpr auto operator +(const char (&a)[aSize], const String<bSize>& b)
+    inline constexpr auto operator +(const char (&a)[aSize], const String<bSize>& b)
     {
         String<aSize + bSize - 1> newString;
         newString.append(a);
@@ -112,7 +114,7 @@ namespace TraumaBuildSystem
     }
 
     template <size_t aSize, size_t bSize>
-    constexpr auto operator *(const String<aSize>& a, const String<bSize>& b)
+    inline constexpr auto operator *(const String<aSize>& a, const String<bSize>& b)
     {
         String<aSize + bSize> newString;
         newString.append(a);
@@ -122,7 +124,7 @@ namespace TraumaBuildSystem
     }
 
     template <size_t aSize, size_t bSize>
-    constexpr auto operator *(const String<aSize>& a, const char (&b)[bSize])
+    inline constexpr auto operator *(const String<aSize>& a, const char (&b)[bSize])
     {
         String<aSize + bSize> newString;
         newString.append(a);
@@ -132,7 +134,7 @@ namespace TraumaBuildSystem
     }
 
     template <size_t aSize, size_t bSize>
-    constexpr auto operator *(const char (&a)[aSize], const String<bSize>& b)
+    inline constexpr auto operator *(const char (&a)[aSize], const String<bSize>& b)
     {
         String<aSize + bSize> newString;
         newString.append(a);
@@ -142,7 +144,7 @@ namespace TraumaBuildSystem
     }
 
     template <size_t aSize, size_t bSize>
-    constexpr auto operator /(const String<aSize>& a, const String<bSize>& b)
+    inline constexpr auto operator /(const String<aSize>& a, const String<bSize>& b)
     {
         String<aSize + bSize> newString;
         newString.append(a);
@@ -152,7 +154,7 @@ namespace TraumaBuildSystem
     }
 
     template <size_t aSize, size_t bSize>
-    constexpr auto operator /(const String<aSize>& a, const char (&b)[bSize])
+    inline constexpr auto operator /(const String<aSize>& a, const char (&b)[bSize])
     {
         String<aSize + bSize> newString;
         newString.append(a);
@@ -162,7 +164,7 @@ namespace TraumaBuildSystem
     }
 
     template <size_t aSize, size_t bSize>
-    constexpr auto operator /(const char (&a)[aSize], const String<bSize>& b)
+    inline constexpr auto operator /(const char (&a)[aSize], const String<bSize>& b)
     {
         String<aSize + bSize> newString;
         newString.append(a);
@@ -173,7 +175,7 @@ namespace TraumaBuildSystem
 
 
 
-    // inline constexpr size_t FindFirstOfSet(const char* const string, const char* const set)
+    // inline constexpr size_t FindFirstOf(const char* const string, const char* const set)
     // {
     //     size_t stringLength = Length(string);
     //     size_t index = InvalidStringIndex;
@@ -192,9 +194,13 @@ namespace TraumaBuildSystem
 
 
 
-    inline constexpr size_t FindLastOfSet(const char* const string, const char* const set)
+    inline constexpr size_t FindLastOf(const char* const string, const char* const set, size_t stringLength)
     {
-        const char* pStr = string + Length(string);
+        size_t actualStringLength = Length(string);
+        const char* pStr = actualStringLength < stringLength ?
+            string + actualStringLength :
+            string + stringLength;
+
         const char* pSet = set;
         size_t index = InvalidStringIndex;
 
@@ -214,6 +220,28 @@ namespace TraumaBuildSystem
         }
 
         return index;
+    }
+
+
+
+    inline constexpr bool ContainsAnyOf(const char* const string, const char* const set)
+    {
+        const char* pStr = string;
+        const char* pSet = set;
+
+        while (*pStr != '\0')
+        {
+            while (*pSet != '\0')
+            {
+                if (*pStr == *pSet)
+                    return true;
+                pSet++;
+            }
+            pSet = set;
+            pStr++;
+        }
+
+        return false;
     }
 
 
