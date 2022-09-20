@@ -14,7 +14,8 @@ TRAUMA_BUILD_SYSTEM(v1::Experimental)
 
 // Edit  Me --->
 
-StaticString cacheDir               = "../Builds/.cache";
+StaticString buildsDir              = "../Builds";
+StaticString cacheDir               = buildsDir / ".cache";
 StaticString buildScriptsDir        = "BuildScripts";
 StaticString additionalFlags        = "-Wall -Wextra -Wpedantic -Wsign-conversion ";
 
